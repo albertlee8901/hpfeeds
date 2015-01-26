@@ -176,7 +176,17 @@ class HPC(object):
 			self._subscribe()
 			while self.connected:
 				try:
+					flag = True
 					d = self.recv()
+					buf = bytearray()
+					buf.extend(d)
+					msgLength,temp = struct.unpack('!iB',buffer(buf,0,5))
+					while flag:
+						r = self.recv()
+						if not r: break
+						d += r
+						if len(d) == msgLength:
+							flag = False
 					self.unpacker.feed(d)
 
 					for opcode, data in self.unpacker:
